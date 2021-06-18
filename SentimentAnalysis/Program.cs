@@ -30,6 +30,8 @@ namespace SentimentAnalysis
             
             var predictions = trainedModel.Transform(testData);
             var metrics = mlContext.BinaryClassification.Evaluate(predictions);
+            var accuracyPercent = metrics.Accuracy * 100D;
+            Console.WriteLine($"Accuracy: {accuracyPercent:N2}%");
 
             var predicationEngine =
                 mlContext.Model.CreatePredictionEngine<SentimentIssue, SentimentPrediction>(trainedModel);
