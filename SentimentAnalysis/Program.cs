@@ -12,27 +12,39 @@ namespace SentimentAnalysis
         private static void Main(string[] args)
         {
             var mlContext = new MLContext();
-
+            
+            //Загружаем все данные из TSV файла.
             var dataView = mlContext.Data.LoadFromTextFile<SentimentIssue>(DataPath, hasHeader: true);
 
+            //Разделаем данные: 80% - для обучения и 20% для теста. 
             var trainTestSplit = mlContext.Data.TrainTestSplit(dataView, 0.2);
+            //Данные для обучения.
             var trainingData = trainTestSplit.TrainSet;
+            //Данные для теста.
             var testData = trainTestSplit.TestSet;
 
-            var dataProcessPipeline = mlContext.Transforms.Text.FeaturizeText("Features", nameof(SentimentIssue.Text));
+            //Определяем процесс обучения модели.
+            //Features - данные, определяющие Label, факторы, влияющие на результат.
+            //Label - результат, определяемый Features.
+            var dataProcessPipeline = mlContext.Transforms.Text
+                .FeaturizeText("Features", nameof(SentimentIssue.Text));
 
             var trainer = mlContext.BinaryClassification.Trainers.SdcaLogisticRegression();
             var trainingPipeline = dataProcessPipeline.Append(trainer);
 
             Console.WriteLine("Обучение модели...");
+            //Обучение модели.
             var trainedModel = trainingPipeline.Fit(trainingData);
             Console.WriteLine("Обучение завершено.");
             
             var predictions = trainedModel.Transform(testData);
+            //Проходимся по данным для теста.
             var metrics = mlContext.BinaryClassification.Evaluate(predictions);
+            //Процент точности модели.
             var accuracyPercent = metrics.Accuracy * 100D;
             Console.WriteLine($"Accuracy: {accuracyPercent:N2}%");
 
+            //API для предугадывания результата.
             var predicationEngine =
                 mlContext.Model.CreatePredictionEngine<SentimentIssue, SentimentPrediction>(trainedModel);
 
@@ -50,6 +62,7 @@ namespace SentimentAnalysis
 
         private static void PrintPredication(PredictionEngine<SentimentIssue, SentimentPrediction> predictionEngine, string commentText)
         {
+            //Получаем предполагаемый моделью результат.
             var resultPredication = predictionEngine.Predict(new SentimentIssue
             {
                 Text = commentText
