@@ -43,6 +43,7 @@ namespace SentimentAnalysis
             PrintPredication("Free access for article citation/reference purposes?");
             PrintPredication("Just$@#@#@% looked and timko info as been removed bu YOU fuck off");
             PrintPredication("\"Jonathan is Offline\" - Jonathans Talk Page  !!@$@$ f");
+            PrintPredication("Are you a female????? Get out of here");
         }
 
         private static void PrintPredication(PredictionEngine<SentimentIssue, SentimentPrediction> predictionEngine, string commentText)
